@@ -23,9 +23,12 @@
             --white: #ffffff;
             --gray: #6c757d;
             --gray-light: #e9ecef;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --box-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
             --transition: all 0.3s ease;
+            --chat-sidebar-width: 320px;
+            --group-sidebar-width: 280px;
         }
 
         * {
@@ -47,8 +50,9 @@
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1600px;
             margin: 0 auto;
+            height: 95vh;
         }
 
         /* شاشة المصادقة */
@@ -56,7 +60,7 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: var(--box-shadow);
+            box-shadow: var(--box-shadow-lg);
             overflow: hidden;
             width: 100%;
             max-width: 400px;
@@ -201,6 +205,35 @@
             transform: none;
         }
 
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #c82333 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #e0a800 100%);
+        }
+
         .loading-spinner {
             width: 20px;
             height: 20px;
@@ -219,24 +252,6 @@
             display: block;
         }
 
-        .form-footer {
-            text-align: center;
-            margin-top: 24px;
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        .form-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .form-link:hover {
-            text-decoration: underline;
-        }
-
         .error-message {
             color: var(--danger);
             font-size: 14px;
@@ -253,22 +268,48 @@
         .chat-container {
             display: none;
             width: 100%;
-            height: 90vh;
+            height: 100%;
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: var(--box-shadow);
+            box-shadow: var(--box-shadow-lg);
             display: flex;
         }
 
-        /* الشريط الجانبي */
+        /* القائمة الجانبية للمحادثات */
         .chat-sidebar {
-            width: 320px;
+            width: var(--chat-sidebar-width);
             background: var(--light);
             border-left: 1px solid var(--gray-light);
             display: flex;
             flex-direction: column;
             transition: transform 0.3s ease;
+            z-index: 100;
+        }
+
+        /* القائمة الجانبية للمجموعات */
+        .groups-sidebar {
+            width: var(--group-sidebar-width);
+            background: #f9f9f9;
+            border-left: 1px solid var(--gray-light);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 90;
+        }
+
+        @media (max-width: 1024px) {
+            .groups-sidebar {
+                position: absolute;
+                top: 0;
+                right: var(--chat-sidebar-width);
+                bottom: 0;
+                transform: translateX(100%);
+            }
+            
+            .groups-sidebar.active {
+                transform: translateX(0);
+            }
         }
 
         @media (max-width: 768px) {
@@ -277,12 +318,16 @@
                 top: 0;
                 right: 0;
                 bottom: 0;
-                z-index: 1000;
                 transform: translateX(100%);
             }
             
             .chat-sidebar.active {
                 transform: translateX(0);
+            }
+            
+            .groups-sidebar {
+                right: 0;
+                z-index: 1100;
             }
         }
 
@@ -307,6 +352,12 @@
             color: white;
             font-size: 24px;
             border: 2px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
         }
 
         .user-details h3 {
@@ -332,9 +383,13 @@
             font-size: 16px;
         }
 
-        .new-chat-btn {
-            background: var(--primary);
-            color: white;
+        .sidebar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: var(--gray-light);
             border: none;
             width: 36px;
             height: 36px;
@@ -343,21 +398,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            color: var(--dark);
             transition: var(--transition);
         }
 
-        .new-chat-btn:hover {
-            background: var(--primary-dark);
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
             transform: scale(1.1);
         }
 
-        .conversations-list {
+        .conversations-list, .groups-list {
             flex: 1;
             overflow-y: auto;
             padding: 16px;
         }
 
-        .conversation-item {
+        .conversation-item, .group-item {
             padding: 16px;
             background: white;
             border-radius: var(--border-radius);
@@ -371,16 +428,49 @@
             gap: 12px;
         }
 
-        .conversation-item:hover {
+        .conversation-item:hover, .group-item:hover {
             transform: translateX(-4px);
             border-color: var(--primary);
             box-shadow: var(--box-shadow);
         }
 
-        .conversation-item.active {
+        .conversation-item.active, .group-item.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+        }
+
+        .group-item.admin {
+            border-right: 4px solid var(--warning);
+        }
+
+        .group-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #e66465 0%, #9198e5 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .group-icon.admin::after {
+            content: "⚡";
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            font-size: 12px;
+            background: var(--warning);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .conversation-avatar {
@@ -396,12 +486,12 @@
             font-size: 20px;
         }
 
-        .conversation-info {
+        .conversation-info, .group-info {
             flex: 1;
             min-width: 0;
         }
 
-        .conversation-name {
+        .conversation-name, .group-name {
             font-weight: 600;
             font-size: 15px;
             margin-bottom: 4px;
@@ -410,7 +500,7 @@
             text-overflow: ellipsis;
         }
 
-        .conversation-preview {
+        .conversation-preview, .group-preview {
             font-size: 13px;
             color: var(--gray);
             white-space: nowrap;
@@ -418,17 +508,19 @@
             text-overflow: ellipsis;
         }
 
-        .conversation-item.active .conversation-preview {
+        .conversation-item.active .conversation-preview,
+        .group-item.active .group-preview {
             color: rgba(255, 255, 255, 0.8);
         }
 
-        .conversation-time {
+        .conversation-time, .group-time {
             font-size: 12px;
             color: var(--gray);
             margin-top: 4px;
         }
 
-        .conversation-item.active .conversation-time {
+        .conversation-item.active .conversation-time,
+        .group-item.active .group-time {
             color: rgba(255, 255, 255, 0.7);
         }
 
@@ -482,6 +574,22 @@
             padding: 8px;
         }
 
+        .mobile-groups-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-groups-btn {
+                display: block;
+            }
+        }
+
         @media (max-width: 768px) {
             .mobile-menu-btn {
                 display: block;
@@ -513,11 +621,16 @@
             transform: scale(1.1);
         }
 
+        .group-actions {
+            display: flex;
+            gap: 8px;
+        }
+
         .chat-messages {
             flex: 1;
-            padding: 32px;
+            padding: 24px;
             overflow-y: auto;
-            background: #f5f5f5;
+            background: #f8f9fa;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -530,6 +643,7 @@
             word-wrap: break-word;
             line-height: 1.5;
             animation: messageSlide 0.3s ease;
+            position: relative;
         }
 
         @keyframes messageSlide {
@@ -563,6 +677,9 @@
             font-size: 14px;
             margin-bottom: 6px;
             opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .message-time {
@@ -570,6 +687,36 @@
             margin-top: 8px;
             opacity: 0.7;
             text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+
+        .message-action-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            opacity: 0.6;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .message-action-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .empty-state {
@@ -601,7 +748,7 @@
         }
 
         .chat-input {
-            padding: 24px 32px;
+            padding: 20px 32px;
             background: white;
             border-top: 1px solid var(--gray-light);
             display: flex;
@@ -609,9 +756,80 @@
             align-items: flex-end;
         }
 
-        .message-input {
+        .emoji-picker-container {
+            position: relative;
+        }
+
+        .emoji-btn {
+            background: var(--gray-light);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            transition: var(--transition);
+            font-size: 20px;
+        }
+
+        .emoji-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .emoji-picker {
+            position: absolute;
+            bottom: 60px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-lg);
+            width: 300px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 16px;
+            z-index: 1000;
+            display: none;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+        }
+
+        .emoji-picker.active {
+            display: grid;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .emoji-item {
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .emoji-item:hover {
+            background: var(--gray-light);
+            transform: scale(1.1);
+        }
+
+        .message-input-wrapper {
             flex: 1;
+            position: relative;
+        }
+
+        .message-input {
+            width: 100%;
             padding: 14px 16px;
+            padding-right: 48px;
             border: 2px solid var(--gray-light);
             border-radius: var(--border-radius);
             font-size: 15px;
@@ -629,8 +847,20 @@
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
+        .message-emoji-btn {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
         .send-btn {
-            padding: 14px 24px;
+            padding: 14px 28px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             border: none;
@@ -667,6 +897,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            backdrop-filter: blur(4px);
         }
 
         .modal-overlay.active {
@@ -677,9 +908,10 @@
         .modal {
             background: white;
             border-radius: 20px;
-            box-shadow: var(--box-shadow);
+            box-shadow: var(--box-shadow-lg);
             width: 100%;
             max-width: 480px;
+            max-height: 90vh;
             overflow: hidden;
             transform: translateY(0);
             animation: modalSlide 0.3s ease;
@@ -730,24 +962,51 @@
         }
 
         .modal-body {
-            padding: 32px;
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
         }
 
         .modal-footer {
-            padding: 24px;
+            padding: 20px 24px;
             border-top: 1px solid var(--gray-light);
             display: flex;
             justify-content: flex-end;
             gap: 12px;
         }
 
-        .users-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 20px;
+        .modal-tabs {
+            display: flex;
+            background: var(--gray-light);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
         }
 
-        .user-list-item {
+        .modal-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            color: var(--gray);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-tab.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--box-shadow);
+        }
+
+        .users-list, .group-members-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+
+        .user-list-item, .member-list-item {
             padding: 16px;
             border: 1px solid var(--gray-light);
             border-radius: var(--border-radius);
@@ -759,15 +1018,102 @@
             gap: 12px;
         }
 
-        .user-list-item:hover {
+        .user-list-item:hover, .member-list-item:hover {
             border-color: var(--primary);
             background: var(--light);
         }
 
-        .user-list-item.selected {
+        .user-list-item.selected, .member-list-item.selected {
             border-color: var(--primary);
             background: var(--primary);
             color: white;
+        }
+
+        .member-role {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .member-list-item.selected .member-role {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .member-role.admin {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .member-role.creator {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* إعدادات المجموعة */
+        .group-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .group-avatar-upload {
+            text-align: center;
+            padding: 20px;
+            border: 2px dashed var(--gray-light);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .group-avatar-upload:hover {
+            border-color: var(--primary);
+            background: var(--light);
+        }
+
+        .group-avatar-preview {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 16px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        /* إدارة أعضاء المجموعة */
+        .member-management {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            background: white;
+        }
+
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 8px;
         }
 
         /* شريط التمرير */
@@ -787,6 +1133,89 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--dark);
+        }
+
+        /* تصميم متجاوب إضافي */
+        @media (max-width: 1200px) {
+            .container {
+                height: 95vh;
+            }
+            
+            .chat-container {
+                flex-direction: column;
+            }
+            
+            .chat-sidebar, .groups-sidebar {
+                width: 100%;
+                height: 40%;
+                border-left: none;
+                border-bottom: 1px solid var(--gray-light);
+            }
+            
+            .chat-main {
+                height: 60%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: 100vh;
+                padding: 0;
+            }
+            
+            .chat-container {
+                border-radius: 0;
+            }
+            
+            .chat-header {
+                padding: 16px 20px;
+            }
+            
+            .chat-messages {
+                padding: 16px;
+            }
+            
+            .chat-input {
+                padding: 16px 20px;
+            }
+            
+            .modal {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            
+            .emoji-picker {
+                width: 280px;
+                right: -100px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+        }
+
+        @media (min-width: 1201px) {
+            .chat-container {
+                display: grid;
+                grid-template-columns: var(--chat-sidebar-width) var(--group-sidebar-width) 1fr;
+                grid-template-rows: 1fr;
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+                height: 100%;
+            }
+            
+            .groups-sidebar {
+                width: 100%;
+                height: 100%;
+                display: flex;
+            }
+            
+            .chat-main {
+                height: 100%;
+            }
         }
     </style>
 </head>
@@ -885,10 +1314,10 @@
     <!-- تطبيق الدردشة -->
     <div class="container" id="chatContainer" style="display: none;">
         <div class="chat-container">
-            <!-- الشريط الجانبي -->
-            <div class="chat-sidebar" id="sidebar">
+            <!-- الشريط الجانبي للمحادثات -->
+            <div class="chat-sidebar" id="chatSidebar">
                 <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-avatar" id="userAvatar" onclick="showUserProfile()">U</div>
                     <div class="user-details">
                         <h3 id="userName">مستخدم</h3>
                         <p id="userStatus">متصل الآن</p>
@@ -896,10 +1325,15 @@
                 </div>
                 
                 <div class="sidebar-header">
-                    <h3>المحادثات</h3>
-                    <button class="new-chat-btn" onclick="showNewChatModal()">
-                        <i class="fas fa-plus"></i>
-                    </button>
+                    <h3>المحادثات الخاصة</h3>
+                    <div class="sidebar-actions">
+                        <button class="action-btn" onclick="showNewChatModal()" title="محادثة جديدة">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="action-btn" onclick="showNewGroupModal()" title="مجموعة جديدة">
+                            <i class="fas fa-users"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="conversations-list" id="conversationsList">
@@ -907,11 +1341,31 @@
                 </div>
             </div>
             
+            <!-- الشريط الجانبي للمجموعات -->
+            <div class="groups-sidebar" id="groupsSidebar">
+                <div class="sidebar-header">
+                    <h3>المجموعات</h3>
+                    <div class="sidebar-actions">
+                        <button class="action-btn" onclick="refreshGroups()" title="تحديث">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="groups-list" id="groupsList">
+                    <!-- المجموعات تظهر هنا -->
+                </div>
+            </div>
+            
             <!-- منطقة الدردشة الرئيسية -->
             <div class="chat-main">
                 <div class="chat-header">
-                    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar('chatSidebar')">
                         <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <button class="mobile-groups-btn" onclick="toggleSidebar('groupsSidebar')">
+                        <i class="fas fa-users"></i>
                     </button>
                     
                     <div class="chat-info">
@@ -922,10 +1376,18 @@
                         </div>
                     </div>
                     
-                    <div class="chat-actions">
+                    <div class="chat-actions" id="chatActions">
                         <button onclick="refreshChat()" title="تحديث">
                             <i class="fas fa-sync-alt"></i>
                         </button>
+                        <div class="group-actions" id="groupActions" style="display: none;">
+                            <button onclick="showGroupSettings()" title="إعدادات المجموعة">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <button onclick="showGroupMembers()" title="أعضاء المجموعة">
+                                <i class="fas fa-user-friends"></i>
+                            </button>
+                        </div>
                         <button onclick="showNewChatModal()" title="محادثة جديدة">
                             <i class="fas fa-plus"></i>
                         </button>
@@ -940,14 +1402,58 @@
                         <i class="fas fa-comments"></i>
                         <h3>مرحباً في NexusChat</h3>
                         <p>اختر محادثة من القائمة الجانبية أو ابدأ محادثة جديدة للبدء في المراسلة</p>
-                        <button onclick="showNewChatModal()" class="btn" style="width: auto; padding: 14px 28px;">
+                        <button onclick="showNewChatModal()" class="btn" style="width: auto; padding: 14px 28px; margin-top: 16px;">
                             <i class="fas fa-plus"></i> بدء محادثة جديدة
+                        </button>
+                        <button onclick="showNewGroupModal()" class="btn btn-success" style="width: auto; padding: 14px 28px; margin-top: 12px;">
+                            <i class="fas fa-users"></i> إنشاء مجموعة جديدة
                         </button>
                     </div>
                 </div>
                 
                 <div class="chat-input">
-                    <textarea class="message-input" id="messageInput" placeholder="اكتب رسالتك هنا..." disabled rows="1"></textarea>
+                    <div class="emoji-picker-container">
+                        <button class="emoji-btn" onclick="toggleEmojiPicker()">
+                            😊
+                        </button>
+                        <div class="emoji-picker" id="emojiPicker">
+                            <!-- إيموجيات الآيفون -->
+                            😊 😂 😍 🥰 😘 😢 😠 🥺 😴 😎
+                            🤔 😏 😒 🙄 🤤 😷 🤕 🤢 🤮 🤧
+                            🥵 🥶 😳 😱 😨 😰 😥 😓 🤗 🤭
+                            🤫 🤥 😶 😐 😑 😬 🙃 😅 😂 🤣
+                            🥳 😇 🤠 🤡 🥴 🤯 😵 🥴 🤤 😪
+                            😫 🥱 🤒 🤕 🤢 🤮 🤧 😷 🤒 🤕
+                            🤢 🤮 🤧 😇 🤠 🤡 🥳 😎 🤓 🧐
+                            😕 😟 🙁 ☹️ 😮 😯 😲 😳 🥺 😦
+                            😧 😨 😰 😥 😢 😭 😤 😠 😡 🤬
+                            🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗
+                            🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙃 😅
+                            🤣 😂 🥲 ☺️ 😊 😇 🙂 🙃 😉 😌
+                            😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜
+                            🤪 🤨 🧐 🤓 😎 🥸 🤩 🥳 😏 😒
+                            😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩
+                            🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵
+                            🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫
+                            🤥 😶 😐 😑 😬 🙃 🤑 🤠 😈 👿
+                            👹 👺 🤡 💩 👻 💀 ☠️ 👽 👾 🤖
+                            🎃 😺 😸 😹 😻 😼 😽 🙀 😿 😾
+                            👋 🤚 🖐 ✋ 🖖 👌 🤌 🤏 ✌️ 🤞
+                            🤟 🤘 🤙 👈 👉 👆 🖕 👇 ☝️ 👍
+                            👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝
+                            🙏 ✍️ 💅 🤳 💪 🦾 🦿 🦵 🦶 👂
+                            🦻 👃 🧠 🦷 🦴 👀 👁 👅 👄 💋
+                            🩸 🫀 🫁 🧠 🦠
+                        </div>
+                    </div>
+                    
+                    <div class="message-input-wrapper">
+                        <textarea class="message-input" id="messageInput" placeholder="اكتب رسالتك هنا..." disabled rows="1"></textarea>
+                        <button class="message-emoji-btn" onclick="toggleEmojiPicker()">
+                            😊
+                        </button>
+                    </div>
+                    
                     <button class="send-btn" onclick="sendMessage()" id="sendBtn" disabled>
                         <i class="fas fa-paper-plane"></i>
                         <span>إرسال</span>
@@ -984,11 +1490,122 @@
             </div>
             
             <div class="modal-footer">
-                <button class="btn" onclick="closeNewChatModal()" style="background: var(--gray);">
+                <button class="btn btn-outline" onclick="closeNewChatModal()">
                     إلغاء
                 </button>
                 <button class="btn" onclick="createNewChat()" id="createChatBtn">
                     بدء المحادثة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إنشاء مجموعة جديدة -->
+    <div class="modal-overlay" id="newGroupModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>إنشاء مجموعة جديدة</h3>
+                <button class="modal-close" onclick="closeNewGroupModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-tabs">
+                    <button class="modal-tab active" onclick="showGroupTab('details')">التفاصيل</button>
+                    <button class="modal-tab" onclick="showGroupTab('members')">الأعضاء</button>
+                </div>
+                
+                <div id="groupDetailsTab" class="modal-tab-content">
+                    <div class="form-group">
+                        <label class="form-label">اسم المجموعة</label>
+                        <div class="input-group">
+                            <input type="text" class="form-input" id="groupName" placeholder="أدخل اسم المجموعة" required>
+                            <div class="input-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">وصف المجموعة</label>
+                        <textarea class="form-input" id="groupDescription" placeholder="وصف المجموعة (اختياري)" rows="3" style="padding: 12px; min-height: 100px;"></textarea>
+                    </div>
+                    
+                    <div class="group-avatar-upload" onclick="triggerGroupAvatarUpload()">
+                        <div class="group-avatar-preview" id="groupAvatarPreview">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <p>انقر لاختيار صورة المجموعة</p>
+                        <input type="file" id="groupAvatarInput" accept="image/*" style="display: none;" onchange="previewGroupAvatar(event)">
+                    </div>
+                </div>
+                
+                <div id="groupMembersTab" class="modal-tab-content" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">ابحث عن أعضاء</label>
+                        <div class="input-group">
+                            <input type="text" class="form-input" id="searchMember" placeholder="اكتب اسم المستخدم للبحث" oninput="searchMembers()">
+                            <div class="input-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="group-members-list" id="groupMembersList">
+                        <!-- قائمة الأعضاء تظهر هنا -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeNewGroupModal()">
+                    إلغاء
+                </button>
+                <button class="btn btn-success" onclick="createNewGroup()" id="createGroupBtn">
+                    إنشاء المجموعة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إعدادات المجموعة -->
+    <div class="modal-overlay" id="groupSettingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="groupSettingsTitle">إعدادات المجموعة</h3>
+                <button class="modal-close" onclick="closeGroupSettingsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="group-settings" id="groupSettingsContent">
+                    <!-- إعدادات المجموعة تظهر هنا -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة الأعضاء -->
+    <div class="modal-overlay" id="groupMembersModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>إدارة أعضاء المجموعة</h3>
+                <button class="modal-close" onclick="closeGroupMembersModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="member-management" id="groupMembersContent">
+                    <!-- أعضاء المجموعة يظهرون هنا -->
+                </div>
+            </div>
+            
+            <div class="modal-footer" id="groupMembersFooter" style="display: none;">
+                <button class="btn btn-outline" onclick="inviteToGroup()">
+                    <i class="fas fa-user-plus"></i> دعوة أعضاء
                 </button>
             </div>
         </div>
@@ -999,7 +1616,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <script>
-        // إعدادات Firebase - استبدل ببيانات مشروعك
+        // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyA9QBYL8jlupqXK22TuJqMgKmNRoKsSixM",
             authDomain: "hodor-d0034.firebaseapp.com",
@@ -1018,9 +1635,61 @@
         // متغيرات التطبيق
         let currentUser = null;
         let currentChat = null;
+        let currentChatType = null; // 'private' أو 'group'
         let allUsers = {};
         let allConversations = {};
-        let selectedUserForChat = null;
+        let allGroups = {};
+        let selectedUsersForChat = [];
+        let selectedUsersForGroup = [];
+        let emojiPickerVisible = false;
+
+        // ========== إيموجي الآيفون ==========
+        const iphoneEmojis = [
+            '😊', '😂', '😍', '🥰', '😘', '😢', '😠', '🥺', '😴', '😎',
+            '🤔', '😏', '😒', '🙄', '🤤', '😷', '🤕', '🤢', '🤮', '🤧',
+            '🥵', '🥶', '😳', '😱', '😨', '😰', '😥', '😓', '🤗', '🤭',
+            '🤫', '🤥', '😶', '😐', '😑', '😬', '🙃', '😅', '🤣', '🥲',
+            '☺️', '😇', '🙂', '😉', '😌', '😗', '😙', '😚', '😋', '😛',
+            '😝', '😜', '🤪', '🤨', '🧐', '🥸', '🤩', '🥳', '😞', '😔',
+            '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '😤', '😡',
+            '🤬', '🤯', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻',
+            '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻',
+            '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐', '✋', '🖖',
+            '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉',
+            '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜',
+            '👏', '🙌', '🫶', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦵',
+            '🦶', '👂', '🦻', '👃', '🧠', '🫀', '🫁', '🦷', '🦴', '👀',
+            '👁️', '👅', '👄', '🫦', '💋', '🩸', '🥶', '🥵', '🥴', '😵',
+            '🤯', '🤠', '🥳', '🥸', '😎', '🤓', '🧐', '😕', '😟', '🙁',
+            '☹️', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰',
+            '😥', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵',
+            '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫',
+            '🤥', '😶', '😐', '😑', '😬', '🙃', '😅', '🤣', '😂', '🥲',
+            '☺️', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘',
+            '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐',
+            '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟',
+            '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭',
+            '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨',
+            '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐',
+            '😑', '😬', '🙃', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡',
+            '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸',
+            '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '💋', '👄', '🫦',
+            '👅', '👁️', '👀', '🧠', '🫀', '🫁', '🦷', '🦴', '👃', '👂',
+            '🦻', '🦵', '🦶', '💪', '🦾', '🦿', '🦵', '🦶', '👣', '🦰',
+            '🦱', '🦳', '🦲', '🧔', '👴', '👵', '🧓', '👨', '👩', '🧑',
+            '👦', '👧', '🧒', '👶', '👨‍🦰', '👩‍🦰', '🧑‍🦰', '👨‍🦱', '👩‍🦱', '🧑‍🦱',
+            '👨‍🦳', '👩‍🦳', '🧑‍🦳', '👨‍🦲', '👩‍🦲', '🧑‍🦲', '🙍', '🙎', '🙅', '🙆',
+            '💁', '🙋', '🧏', '🙇', '🤦', '🤷', '💆', '💇', '🚶', '🏃',
+            '💃', '🕺', '👯', '🧖', '🧗', '🤺', '🏇', '⛷️', '🏂', '🏌️',
+            '🏄', '🚣', '🏊', '⛹️', '🏋️', '🚴', '🚵', '🤸', '🤼', '🤽',
+            '🤾', '🤹', '🧘', '🛀', '🛌', '🕴️', '🗣️', '👤', '👥', '👪',
+            '👨‍👩‍👦', '👨‍👩‍👧', '👨‍👩‍👧‍👦', '👨‍👩‍👦‍👦', '👨‍👩‍👧‍👧', '👨‍👨‍👦', '👨‍👨‍👧', '👨‍👨‍👧‍👦', '👨‍👨‍👦‍👦', '👨‍👨‍👧‍👧',
+            '👩‍👩‍👦', '👩‍👩‍👧', '👩‍👩‍👧‍👦', '👩‍👩‍👦‍👦', '👩‍👩‍👧‍👧', '👨‍👦', '👨‍👦‍👦', '👨‍👧', '👨‍👧‍👦', '👨‍👧‍👧',
+            '👩‍👦', '👩‍👦‍👦', '👩‍👧', '👩‍👧‍👦', '👩‍👧‍👧', '🧶', '🧵', '🧥', '🥼', '🦺',
+            '👚', '👕', '👖', '🩲', '🩳', '👔', '👗', '👙', '🩱', '👘',
+            '🥻', '🩴', '🧦', '👟', '🥾', '🥿', '👠', '👡', '🩰', '👢',
+            '👞', '👒', '🎩', '🧢', '🎓', '⛑️', '💄', '💍', '💼'
+        ];
 
         // ========== دوال المساعدة ==========
 
@@ -1163,13 +1832,15 @@
                 const userData = {
                     id: userId,
                     username: username,
-                    password: password, // في تطبيق حقيقي، يجب تشفير كلمة المرور
+                    password: password,
                     displayName: username,
                     avatarColor: getRandomColor(),
                     status: 'online',
                     lastSeen: Date.now(),
                     createdAt: Date.now(),
-                    conversations: {}
+                    conversations: {},
+                    groups: {},
+                    isAdmin: false
                 };
                 
                 // حفظ المستخدم في قاعدة البيانات
@@ -1240,7 +1911,7 @@
                 console.error('خطأ في تسجيل الدخول:', error);
                 showError('loginUsernameError', 'حدث خطأ في تسجيل الدخول');
                 btn.disabled = false;
-                spinner.classList.remove('active');
+                    spinner.classList.remove('active');
             }
         };
 
@@ -1253,13 +1924,15 @@
                 id: userData.id,
                 username: userData.username,
                 displayName: userData.displayName,
-                avatarColor: userData.avatarColor
+                avatarColor: userData.avatarColor,
+                isAdmin: userData.isAdmin || false
             }));
             
             showChatApp();
             loadUserData();
             loadAllUsers();
             loadUserConversations();
+            loadUserGroups();
             
             showToast(`مرحباً ${userData.displayName}!`, 'success');
         }
@@ -1267,7 +1940,7 @@
         // عرض تطبيق الدردشة
         function showChatApp() {
             document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('chatContainer').style.display = 'flex';
+            document.getElementById('chatContainer').style.display = 'block';
         }
 
         // تحميل بيانات المستخدم الحالي
@@ -1277,6 +1950,11 @@
             document.getElementById('userName').textContent = currentUser.displayName;
             document.getElementById('userAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
             document.getElementById('userAvatar').style.background = currentUser.avatarColor;
+            
+            // إذا كان المستخدم أدمن، إضافة علامة
+            if (currentUser.isAdmin) {
+                document.getElementById('userAvatar').innerHTML = currentUser.displayName.charAt(0).toUpperCase() + '<span style="position: absolute; bottom: -2px; right: -2px; background: var(--warning); color: var(--dark); width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">⚡</span>';
+            }
         }
 
         // تحميل جميع المستخدمين
@@ -1288,7 +1966,7 @@
             });
         }
 
-        // ========== إدارة المحادثات ==========
+        // ========== إدارة المحادثات الخاصة ==========
 
         // تحميل محادثات المستخدم
         function loadUserConversations() {
@@ -1311,7 +1989,7 @@
                     <div style="text-align: center; padding: 40px 20px; color: var(--gray);">
                         <i class="fas fa-comment-slash" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
                         <p style="margin-bottom: 24px;">لا توجد محادثات</p>
-                        <button onclick="showNewChatModal()" class="btn" style="width: auto; padding: 12px 24px;">
+                        <button onclick="showNewChatModal()" class="btn btn-sm" style="width: auto; padding: 12px 24px;">
                             <i class="fas fa-plus"></i> بدء محادثة جديدة
                         </button>
                     </div>
@@ -1322,6 +2000,7 @@
             // تحويل المحادثات إلى مصفوفة وترتيبها حسب آخر رسالة
             const conversationsArray = Object.entries(conversations)
                 .map(([id, conv]) => ({ id, ...conv }))
+                .filter(conv => conv.type === 'private')
                 .sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
             
             let html = '';
@@ -1331,8 +2010,7 @@
                 let avatarColor = conversation.avatarColor || getRandomColor();
                 let otherUserId = null;
                 
-                // إذا كانت محادثة خاصة
-                if (conversation.type === 'private' && conversation.participants) {
+                if (conversation.participants) {
                     const participants = Object.keys(conversation.participants);
                     otherUserId = participants.find(id => id !== currentUser.id);
                     if (otherUserId && allUsers[otherUserId]) {
@@ -1343,11 +2021,11 @@
                 
                 const lastMessage = conversation.lastMessage || 'بدون رسائل';
                 const lastTime = formatTime(conversation.lastMessageTime);
-                const isActive = currentChat === conversation.id;
+                const isActive = currentChat === conversation.id && currentChatType === 'private';
                 const unreadCount = conversation.unreadCount || 0;
                 
                 html += `
-                    <div class="conversation-item ${isActive ? 'active' : ''}" onclick="openChat('${conversation.id}')" data-id="${conversation.id}">
+                    <div class="conversation-item ${isActive ? 'active' : ''}" onclick="openChat('${conversation.id}', 'private')" data-id="${conversation.id}">
                         <div class="conversation-avatar" style="background: ${avatarColor}">
                             ${conversationName.charAt(0).toUpperCase()}
                         </div>
@@ -1364,31 +2042,130 @@
             container.innerHTML = html;
         }
 
-        // فتح محادثة
-        window.openChat = (conversationId) => {
-            const conversation = allConversations[conversationId];
-            if (!conversation) return;
+        // ========== إدارة المجموعات ==========
+
+        // تحميل مجموعات المستخدم
+        function loadUserGroups() {
+            if (!currentUser) return;
             
-            currentChat = conversationId;
+            const groupsRef = database.ref('groups');
+            groupsRef.on('value', (snapshot) => {
+                const groups = snapshot.val();
+                allGroups = groups || {};
+                displayGroups(groups);
+            });
+        }
+
+        // عرض المجموعات في القائمة
+        function displayGroups(groups) {
+            const container = document.getElementById('groupsList');
             
-            // الحصول على اسم المحادثة
-            let conversationName = conversation.name || 'محادثة';
-            let avatarColor = conversation.avatarColor || getRandomColor();
-            
-            if (conversation.type === 'private' && conversation.participants) {
-                const participants = Object.keys(conversation.participants);
-                const otherUserId = participants.find(id => id !== currentUser.id);
-                if (otherUserId && allUsers[otherUserId]) {
-                    conversationName = allUsers[otherUserId].displayName;
-                    avatarColor = allUsers[otherUserId].avatarColor || avatarColor;
-                }
+            if (!groups || Object.keys(groups).length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--gray);">
+                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
+                        <p style="margin-bottom: 24px;">لا توجد مجموعات</p>
+                        <button onclick="showNewGroupModal()" class="btn btn-success btn-sm" style="width: auto; padding: 12px 24px;">
+                            <i class="fas fa-plus"></i> إنشاء مجموعة جديدة
+                        </button>
+                    </div>
+                `;
+                return;
             }
             
-            // تحديث الواجهة
-            document.getElementById('chatName').textContent = conversationName;
-            document.getElementById('chatAvatar').textContent = conversationName.charAt(0).toUpperCase();
-            document.getElementById('chatAvatar').style.background = avatarColor;
-            document.getElementById('chatStatus').textContent = 'متصل';
+            // تحويل المجموعات إلى مصفوفة وترتيبها حسب آخر رسالة
+            const groupsArray = Object.entries(groups)
+                .map(([id, group]) => ({ id, ...group }))
+                .filter(group => group.members && group.members[currentUser.id])
+                .sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
+            
+            let html = '';
+            
+            groupsArray.forEach(group => {
+                const isAdmin = group.admins && group.admins[currentUser.id];
+                const isCreator = group.creator === currentUser.id;
+                const lastMessage = group.lastMessage || 'بدون رسائل';
+                const lastTime = formatTime(group.lastMessageTime);
+                const isActive = currentChat === group.id && currentChatType === 'group';
+                const unreadCount = group.unreadCount || 0;
+                
+                html += `
+                    <div class="group-item ${isActive ? 'active' : ''} ${isAdmin || isCreator ? 'admin' : ''}" onclick="openChat('${group.id}', 'group')" data-id="${group.id}">
+                        <div class="group-icon ${isAdmin || isCreator ? 'admin' : ''}">
+                            ${group.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="group-info">
+                            <div class="group-name">${group.name}</div>
+                            <div class="group-preview">${lastMessage}</div>
+                            <div class="group-time">${lastTime}</div>
+                        </div>
+                        ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // تحديث المجموعات
+        window.refreshGroups = () => {
+            loadUserGroups();
+            showToast('تم تحديث المجموعات', 'info');
+        };
+
+        // فتح محادثة (خاصة أو مجموعة)
+        window.openChat = (chatId, type) => {
+            if (type === 'private') {
+                const conversation = allConversations[chatId];
+                if (!conversation) return;
+                
+                currentChat = chatId;
+                currentChatType = 'private';
+                
+                let conversationName = conversation.name || 'محادثة';
+                let avatarColor = conversation.avatarColor || getRandomColor();
+                
+                if (conversation.participants) {
+                    const participants = Object.keys(conversation.participants);
+                    const otherUserId = participants.find(id => id !== currentUser.id);
+                    if (otherUserId && allUsers[otherUserId]) {
+                        conversationName = allUsers[otherUserId].displayName;
+                        avatarColor = allUsers[otherUserId].avatarColor || avatarColor;
+                    }
+                }
+                
+                // تحديث الواجهة
+                document.getElementById('chatName').textContent = conversationName;
+                document.getElementById('chatAvatar').textContent = conversationName.charAt(0).toUpperCase();
+                document.getElementById('chatAvatar').style.background = avatarColor;
+                document.getElementById('chatStatus').textContent = 'متصل';
+                
+                // إخفاء إجراءات المجموعة
+                document.getElementById('groupActions').style.display = 'none';
+                
+            } else if (type === 'group') {
+                const group = allGroups[chatId];
+                if (!group) return;
+                
+                currentChat = chatId;
+                currentChatType = 'group';
+                
+                // تحديث الواجهة
+                document.getElementById('chatName').textContent = group.name;
+                document.getElementById('chatAvatar').textContent = group.name.charAt(0).toUpperCase();
+                document.getElementById('chatAvatar').style.background = getRandomColor();
+                document.getElementById('chatStatus').textContent = `${group.memberCount || 0} أعضاء`;
+                
+                // عرض إجراءات المجموعة إذا كان المستخدم أدمن أو منشئ
+                const isAdmin = group.admins && group.admins[currentUser.id];
+                const isCreator = group.creator === currentUser.id;
+                
+                if (isAdmin || isCreator) {
+                    document.getElementById('groupActions').style.display = 'flex';
+                } else {
+                    document.getElementById('groupActions').style.display = 'none';
+                }
+            }
             
             // تفعيل حقل الإدخال
             document.getElementById('messageInput').disabled = false;
@@ -1396,27 +2173,29 @@
             document.getElementById('messageInput').placeholder = 'اكتب رسالتك هنا...';
             
             // تحميل الرسائل
-            loadMessages(conversationId);
+            loadMessages(chatId, type);
             
-            // تحديث القائمة
-            document.querySelectorAll('.conversation-item').forEach(item => {
+            // تحديث القوائم
+            document.querySelectorAll('.conversation-item, .group-item').forEach(item => {
                 item.classList.remove('active');
             });
-            document.querySelector(`.conversation-item[data-id="${conversationId}"]`)?.classList.add('active');
+            document.querySelector(`[data-id="${chatId}"]`)?.classList.add('active');
             
-            // إغلاق القائمة في الموبايل
+            // إغلاق القوائم في الموبايل
             if (window.innerWidth <= 768) {
-                toggleSidebar();
+                toggleSidebar('chatSidebar');
+                toggleSidebar('groupsSidebar');
             }
         };
 
         // ========== إدارة الرسائل ==========
 
         // تحميل رسائل المحادثة
-        function loadMessages(conversationId) {
+        function loadMessages(chatId, type) {
             const container = document.getElementById('chatMessages');
+            const path = type === 'private' ? 'messages/' + chatId : 'groupMessages/' + chatId;
             
-            const messagesRef = database.ref('messages/' + conversationId);
+            const messagesRef = database.ref(path);
             messagesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
                 const messages = snapshot.val();
                 
@@ -1446,7 +2225,17 @@
                         <div class="message ${isSent ? 'sent' : 'received'}">
                             ${!isSent ? `<div class="message-sender">${senderName}</div>` : ''}
                             <div>${message.text}</div>
-                            <div class="message-time">${time}</div>
+                            <div class="message-time">
+                                <span>${time}</span>
+                                <div class="message-actions">
+                                    ${isSent ? `<button class="message-action-btn" onclick="deleteMessage('${chatId}', '${message.id}', '${type}')" title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </button>` : ''}
+                                    <button class="message-action-btn" onclick="copyMessage('${message.text}')" title="نسخ">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     `;
                 });
@@ -1463,11 +2252,16 @@
         // إرسال رسالة
         window.sendMessage = async () => {
             const input = document.getElementById('messageInput');
-            const text = input.value.trim();
+            let text = input.value.trim();
             
             if (!text || !currentChat || !currentUser) {
                 showToast('يرجى كتابة رسالة', 'warning');
                 return;
+            }
+            
+            // إضافة إيموجي إذا كان النص إيموجي فقط
+            if (iphoneEmojis.includes(text) && text.length <= 2) {
+                text = text;
             }
             
             try {
@@ -1478,22 +2272,37 @@
                     senderId: currentUser.id,
                     senderName: currentUser.displayName,
                     timestamp: Date.now(),
-                    conversationId: currentChat
+                    type: currentChatType
                 };
                 
-                // حفظ الرسالة
-                await database.ref('messages/' + currentChat + '/' + messageId).set(messageData);
-                
-                // تحديث المحادثة
-                await database.ref('conversations/' + currentChat).update({
-                    lastMessage: text,
-                    lastMessageTime: Date.now(),
-                    lastMessageSender: currentUser.id
-                });
+                if (currentChatType === 'private') {
+                    // حفظ الرسالة في المحادثة الخاصة
+                    await database.ref('messages/' + currentChat + '/' + messageId).set(messageData);
+                    
+                    // تحديث المحادثة
+                    await database.ref('conversations/' + currentChat).update({
+                        lastMessage: text,
+                        lastMessageTime: Date.now(),
+                        lastMessageSender: currentUser.id
+                    });
+                } else if (currentChatType === 'group') {
+                    // حفظ الرسالة في المجموعة
+                    await database.ref('groupMessages/' + currentChat + '/' + messageId).set(messageData);
+                    
+                    // تحديث المجموعة
+                    await database.ref('groups/' + currentChat).update({
+                        lastMessage: text,
+                        lastMessageTime: Date.now(),
+                        lastMessageSender: currentUser.id
+                    });
+                }
                 
                 // مسح حقل الإدخال
                 input.value = '';
                 input.style.height = 'auto';
+                
+                // إخفاء منتقي الإيموجي
+                toggleEmojiPicker(true);
                 
             } catch (error) {
                 console.error('خطأ في إرسال الرسالة:', error);
@@ -1501,12 +2310,90 @@
             }
         };
 
+        // حذف رسالة
+        async function deleteMessage(chatId, messageId, type) {
+            if (!confirm('هل تريد حذف هذه الرسالة؟')) return;
+            
+            try {
+                const path = type === 'private' ? 'messages/' + chatId + '/' + messageId : 'groupMessages/' + chatId + '/' + messageId;
+                await database.ref(path).remove();
+                showToast('تم حذف الرسالة', 'success');
+            } catch (error) {
+                console.error('خطأ في حذف الرسالة:', error);
+                showToast('حدث خطأ في حذف الرسالة', 'error');
+            }
+        }
+
+        // نسخ رسالة
+        function copyMessage(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('تم نسخ الرسالة', 'success');
+            });
+        }
+
+        // ========== إدارة الإيموجي ==========
+
+        // تبديل منتقي الإيموجي
+        window.toggleEmojiPicker = (forceClose = false) => {
+            const picker = document.getElementById('emojiPicker');
+            
+            if (forceClose) {
+                emojiPickerVisible = false;
+                picker.classList.remove('active');
+                return;
+            }
+            
+            emojiPickerVisible = !emojiPickerVisible;
+            
+            if (emojiPickerVisible) {
+                picker.classList.add('active');
+                // تعبئة منتقي الإيموجي
+                picker.innerHTML = iphoneEmojis.map(emoji => 
+                    `<div class="emoji-item" onclick="insertEmoji('${emoji}')">${emoji}</div>`
+                ).join('');
+                
+                // إغلاق المنتقي عند النقر خارجيه
+                setTimeout(() => {
+                    document.addEventListener('click', closeEmojiPickerOnClickOutside);
+                }, 100);
+            } else {
+                picker.classList.remove('active');
+                document.removeEventListener('click', closeEmojiPickerOnClickOutside);
+            }
+        };
+
+        // إغلاق منتقي الإيموجي عند النقر خارجيه
+        function closeEmojiPickerOnClickOutside(event) {
+            const picker = document.getElementById('emojiPicker');
+            const emojiBtn = document.querySelector('.emoji-btn');
+            
+            if (!picker.contains(event.target) && !emojiBtn.contains(event.target)) {
+                toggleEmojiPicker(true);
+            }
+        }
+
+        // إدخال إيموجي في حقل النص
+        window.insertEmoji = (emoji) => {
+            const input = document.getElementById('messageInput');
+            const cursorPos = input.selectionStart;
+            const textBefore = input.value.substring(0, cursorPos);
+            const textAfter = input.value.substring(cursorPos);
+            
+            input.value = textBefore + emoji + textAfter;
+            input.focus();
+            input.setSelectionRange(cursorPos + emoji.length, cursorPos + emoji.length);
+            
+            // تحديث ارتفاع الحقل
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        };
+
         // ========== إنشاء محادثات جديدة ==========
 
         // عرض نافذة إنشاء محادثة جديدة
         window.showNewChatModal = () => {
             document.getElementById('newChatModal').classList.add('active');
-            selectedUserForChat = null;
+            selectedUsersForChat = [];
             displayAllUsersForChat();
         };
 
@@ -1514,7 +2401,7 @@
         window.closeNewChatModal = () => {
             document.getElementById('newChatModal').classList.remove('active');
             document.getElementById('searchUser').value = '';
-            selectedUserForChat = null;
+            selectedUsersForChat = [];
         };
 
         // عرض جميع المستخدمين للنافذة
@@ -1537,7 +2424,7 @@
             let html = '';
             
             usersArray.forEach(user => {
-                const isSelected = selectedUserForChat?.id === user.id;
+                const isSelected = selectedUsersForChat.some(u => u.id === user.id);
                 
                 html += `
                     <div class="user-list-item ${isSelected ? 'selected' : ''}" onclick="selectUserForChat('${user.id}')" data-user-id="${user.id}">
@@ -1587,7 +2474,7 @@
             let html = '';
             
             filteredUsers.forEach(user => {
-                const isSelected = selectedUserForChat?.id === user.id;
+                const isSelected = selectedUsersForChat.some(u => u.id === user.id);
                 
                 html += `
                     <div class="user-list-item ${isSelected ? 'selected' : ''}" onclick="selectUserForChat('${user.id}')" data-user-id="${user.id}">
@@ -1608,21 +2495,42 @@
 
         // اختيار مستخدم للمحادثة
         window.selectUserForChat = (userId) => {
-            selectedUserForChat = allUsers[userId];
+            const user = allUsers[userId];
+            if (!user) return;
+            
+            const index = selectedUsersForChat.findIndex(u => u.id === userId);
+            
+            if (index === -1) {
+                selectedUsersForChat.push(user);
+            } else {
+                selectedUsersForChat.splice(index, 1);
+            }
             
             // تحديث العرض
-            document.querySelectorAll('.user-list-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            document.querySelector(`.user-list-item[data-user-id="${userId}"]`)?.classList.add('selected');
+            const item = document.querySelector(`.user-list-item[data-user-id="${userId}"]`);
+            if (item) {
+                if (selectedUsersForChat.some(u => u.id === userId)) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            }
         };
 
         // إنشاء محادثة جديدة
         window.createNewChat = async () => {
-            if (!selectedUserForChat) {
+            if (selectedUsersForChat.length === 0) {
                 showToast('يرجى اختيار مستخدم للمحادثة', 'warning');
                 return;
             }
+            
+            // محادثة خاصة مع مستخدم واحد فقط
+            if (selectedUsersForChat.length > 1) {
+                showToast('المحادثة الخاصة مع مستخدم واحد فقط', 'warning');
+                return;
+            }
+            
+            const selectedUser = selectedUsersForChat[0];
             
             try {
                 // التحقق من وجود محادثة مسبقة
@@ -1630,7 +2538,7 @@
                     conv.type === 'private' && 
                     conv.participants && 
                     conv.participants[currentUser.id] && 
-                    conv.participants[selectedUserForChat.id]
+                    conv.participants[selectedUser.id]
                 );
                 
                 if (existingConversation) {
@@ -1639,7 +2547,7 @@
                         allConversations[id] === existingConversation
                     );
                     closeNewChatModal();
-                    openChat(conversationId);
+                    openChat(conversationId, 'private');
                     showToast('تم فتح المحادثة الموجودة', 'info');
                     return;
                 }
@@ -1650,7 +2558,7 @@
                     id: conversationId,
                     type: 'private',
                     name: null,
-                    avatarColor: selectedUserForChat.avatarColor || getRandomColor(),
+                    avatarColor: selectedUser.avatarColor || getRandomColor(),
                     createdAt: Date.now(),
                     lastMessage: '',
                     lastMessageTime: null,
@@ -1658,7 +2566,7 @@
                     unreadCount: 0,
                     participants: {
                         [currentUser.id]: true,
-                        [selectedUserForChat.id]: true
+                        [selectedUser.id]: true
                     }
                 };
                 
@@ -1667,13 +2575,13 @@
                 
                 // إضافة المحادثة للمستخدمين
                 await database.ref('users/' + currentUser.id + '/conversations/' + conversationId).set(true);
-                await database.ref('users/' + selectedUserForChat.id + '/conversations/' + conversationId).set(true);
+                await database.ref('users/' + selectedUser.id + '/conversations/' + conversationId).set(true);
                 
-                showToast(`بدأت محادثة مع ${selectedUserForChat.displayName}`, 'success');
+                showToast(`بدأت محادثة مع ${selectedUser.displayName}`, 'success');
                 
                 // إغلاق النافذة وفتح المحادثة
                 closeNewChatModal();
-                setTimeout(() => openChat(conversationId), 500);
+                setTimeout(() => openChat(conversationId, 'private'), 500);
                 
             } catch (error) {
                 console.error('خطأ في إنشاء المحادثة:', error);
@@ -1681,15 +2589,643 @@
             }
         };
 
+        // ========== إدارة المجموعات ==========
+
+        // عرض نافذة إنشاء مجموعة جديدة
+        window.showNewGroupModal = () => {
+            document.getElementById('newGroupModal').classList.add('active');
+            selectedUsersForGroup = [];
+            showGroupTab('details');
+            displayAllUsersForGroup();
+        };
+
+        // إغلاق نافذة إنشاء مجموعة
+        window.closeNewGroupModal = () => {
+            document.getElementById('newGroupModal').classList.remove('active');
+            document.getElementById('groupName').value = '';
+            document.getElementById('groupDescription').value = '';
+            document.getElementById('searchMember').value = '';
+            document.getElementById('groupAvatarPreview').innerHTML = '<i class="fas fa-users"></i>';
+            selectedUsersForGroup = [];
+        };
+
+        // تبديل تبويبات المجموعة
+        window.showGroupTab = (tabName) => {
+            document.querySelectorAll('.modal-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.modal-tab-content').forEach(content => content.style.display = 'none');
+            
+            document.querySelector(`.modal-tab[onclick*="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}Tab`).style.display = 'block';
+        };
+
+        // عرض جميع المستخدمين للمجموعة
+        function displayAllUsersForGroup() {
+            const container = document.getElementById('groupMembersList');
+            const usersArray = Object.values(allUsers)
+                .filter(user => user.id !== currentUser.id)
+                .sort((a, b) => a.displayName.localeCompare(b.displayName, 'ar'));
+            
+            if (usersArray.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--gray);">
+                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                        <p>لا يوجد مستخدمون آخرون</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            usersArray.forEach(user => {
+                const isSelected = selectedUsersForGroup.some(u => u.id === user.id);
+                
+                html += `
+                    <div class="member-list-item ${isSelected ? 'selected' : ''}" onclick="selectUserForGroup('${user.id}')" data-user-id="${user.id}">
+                        <div style="width: 40px; height: 40px; background: ${user.avatarColor || getRandomColor()}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                            ${user.displayName.charAt(0).toUpperCase()}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">${user.displayName}</div>
+                            <div style="font-size: 13px; color: ${isSelected ? 'rgba(255,255,255,0.8)' : 'var(--gray)'};">@${user.username}</div>
+                        </div>
+                        ${isSelected ? `<span class="member-role">عضو</span>` : ''}
+                        ${isSelected ? `<i class="fas fa-check" style="color: white;"></i>` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // البحث عن أعضاء للمجموعة
+        window.searchMembers = () => {
+            const searchTerm = document.getElementById('searchMember').value.toLowerCase().trim();
+            const container = document.getElementById('groupMembersList');
+            
+            if (!searchTerm) {
+                displayAllUsersForGroup();
+                return;
+            }
+            
+            const filteredUsers = Object.values(allUsers)
+                .filter(user => 
+                    user.id !== currentUser.id &&
+                    (user.username.toLowerCase().includes(searchTerm) || 
+                     user.displayName.toLowerCase().includes(searchTerm))
+                )
+                .sort((a, b) => a.displayName.localeCompare(b.displayName, 'ar'));
+            
+            if (filteredUsers.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--gray);">
+                        <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                        <p>لا توجد نتائج للبحث</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            filteredUsers.forEach(user => {
+                const isSelected = selectedUsersForGroup.some(u => u.id === user.id);
+                
+                html += `
+                    <div class="member-list-item ${isSelected ? 'selected' : ''}" onclick="selectUserForGroup('${user.id}')" data-user-id="${user.id}">
+                        <div style="width: 40px; height: 40px; background: ${user.avatarColor || getRandomColor()}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                            ${user.displayName.charAt(0).toUpperCase()}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600;">${user.displayName}</div>
+                            <div style="font-size: 13px; color: ${isSelected ? 'rgba(255,255,255,0.8)' : 'var(--gray)'};">@${user.username}</div>
+                        </div>
+                        ${isSelected ? `<span class="member-role">عضو</span>` : ''}
+                        ${isSelected ? `<i class="fas fa-check" style="color: white;"></i>` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        };
+
+        // اختيار مستخدم للمجموعة
+        window.selectUserForGroup = (userId) => {
+            const user = allUsers[userId];
+            if (!user) return;
+            
+            const index = selectedUsersForGroup.findIndex(u => u.id === userId);
+            
+            if (index === -1) {
+                selectedUsersForGroup.push(user);
+            } else {
+                selectedUsersForGroup.splice(index, 1);
+            }
+            
+            // تحديث العرض
+            const item = document.querySelector(`.member-list-item[data-user-id="${userId}"]`);
+            if (item) {
+                if (selectedUsersForGroup.some(u => u.id === userId)) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            }
+        };
+
+        // تحميل صورة المجموعة
+        window.triggerGroupAvatarUpload = () => {
+            document.getElementById('groupAvatarInput').click();
+        };
+
+        window.previewGroupAvatar = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('groupAvatarPreview');
+                preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // إنشاء مجموعة جديدة
+        window.createNewGroup = async () => {
+            const groupName = document.getElementById('groupName').value.trim();
+            const groupDescription = document.getElementById('groupDescription').value.trim();
+            
+            if (!groupName) {
+                showToast('يرجى إدخال اسم المجموعة', 'warning');
+                return;
+            }
+            
+            if (selectedUsersForGroup.length === 0) {
+                showToast('يرجى اختيار أعضاء للمجموعة', 'warning');
+                return;
+            }
+            
+            try {
+                const groupId = generateId();
+                
+                // إنشاء كائن الأعضاء
+                const members = {
+                    [currentUser.id]: {
+                        joinedAt: Date.now(),
+                        role: 'creator'
+                    }
+                };
+                
+                // إضافة الأدمن (المستخدم الحالي)
+                const admins = {
+                    [currentUser.id]: true
+                };
+                
+                // إضافة الأعضاء المختارين
+                selectedUsersForGroup.forEach(user => {
+                    members[user.id] = {
+                        joinedAt: Date.now(),
+                        role: 'member'
+                    };
+                });
+                
+                const groupData = {
+                    id: groupId,
+                    name: groupName,
+                    description: groupDescription || '',
+                    creator: currentUser.id,
+                    createdAt: Date.now(),
+                    avatarColor: getRandomColor(),
+                    members: members,
+                    admins: admins,
+                    memberCount: selectedUsersForGroup.length + 1,
+                    lastMessage: '',
+                    lastMessageTime: null,
+                    lastMessageSender: null,
+                    unreadCount: 0
+                };
+                
+                // حفظ المجموعة
+                await database.ref('groups/' + groupId).set(groupData);
+                
+                // إضافة المجموعة للمستخدمين
+                await database.ref('users/' + currentUser.id + '/groups/' + groupId).set(true);
+                
+                for (const user of selectedUsersForGroup) {
+                    await database.ref('users/' + user.id + '/groups/' + groupId).set(true);
+                }
+                
+                showToast(`تم إنشاء المجموعة "${groupName}" بنجاح`, 'success');
+                
+                // إغلاق النافذة وفتح المجموعة
+                closeNewGroupModal();
+                setTimeout(() => openChat(groupId, 'group'), 500);
+                
+            } catch (error) {
+                console.error('خطأ في إنشاء المجموعة:', error);
+                showToast('حدث خطأ في إنشاء المجموعة', 'error');
+            }
+        };
+
+        // ========== إدارة المجموعات ==========
+
+        // عرض إعدادات المجموعة
+        window.showGroupSettings = async () => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            const group = allGroups[currentChat];
+            if (!group) return;
+            
+            const isAdmin = group.admins && group.admins[currentUser.id];
+            const isCreator = group.creator === currentUser.id;
+            
+            if (!isAdmin && !isCreator) {
+                showToast('لا تملك صلاحية الوصول لإعدادات المجموعة', 'warning');
+                return;
+            }
+            
+            document.getElementById('groupSettingsTitle').textContent = `إعدادات ${group.name}`;
+            
+            let settingsHtml = '';
+            
+            if (isCreator) {
+                settingsHtml = `
+                    <div class="form-group">
+                        <label class="form-label">اسم المجموعة</label>
+                        <div class="input-group">
+                            <input type="text" class="form-input" id="editGroupName" value="${group.name}" placeholder="اسم المجموعة">
+                            <div class="input-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">وصف المجموعة</label>
+                        <textarea class="form-input" id="editGroupDescription" placeholder="وصف المجموعة" rows="3">${group.description || ''}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="updateGroupSettings()">
+                            <i class="fas fa-save"></i> حفظ التغييرات
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <hr style="margin: 20px 0; border-color: var(--gray-light);">
+                        <h4 style="margin-bottom: 16px; color: var(--danger);">خيارات خطيرة</h4>
+                        
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-danger" onclick="deleteGroup()">
+                                <i class="fas fa-trash"></i> حذف المجموعة
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (isAdmin) {
+                settingsHtml = `
+                    <div class="form-group">
+                        <label class="form-label">اسم المجموعة</label>
+                        <p style="padding: 12px; background: var(--light); border-radius: var(--border-radius);">${group.name}</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">وصف المجموعة</label>
+                        <p style="padding: 12px; background: var(--light); border-radius: var(--border-radius);">${group.description || 'لا يوجد وصف'}</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button class="btn btn-warning" onclick="leaveGroup()">
+                            <i class="fas fa-sign-out-alt"></i> مغادرة المجموعة
+                        </button>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('groupSettingsContent').innerHTML = settingsHtml;
+            document.getElementById('groupSettingsModal').classList.add('active');
+        };
+
+        // إغلاق نافذة إعدادات المجموعة
+        window.closeGroupSettingsModal = () => {
+            document.getElementById('groupSettingsModal').classList.remove('active');
+        };
+
+        // تحديث إعدادات المجموعة
+        window.updateGroupSettings = async () => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            const groupName = document.getElementById('editGroupName').value.trim();
+            const groupDescription = document.getElementById('editGroupDescription').value.trim();
+            
+            if (!groupName) {
+                showToast('يرجى إدخال اسم المجموعة', 'warning');
+                return;
+            }
+            
+            try {
+                await database.ref('groups/' + currentChat).update({
+                    name: groupName,
+                    description: groupDescription
+                });
+                
+                showToast('تم تحديث إعدادات المجموعة', 'success');
+                closeGroupSettingsModal();
+                
+                // تحديث الواجهة
+                document.getElementById('chatName').textContent = groupName;
+                
+            } catch (error) {
+                console.error('خطأ في تحديث إعدادات المجموعة:', error);
+                showToast('حدث خطأ في تحديث الإعدادات', 'error');
+            }
+        };
+
+        // حذف المجموعة
+        window.deleteGroup = async () => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            if (!confirm('هل أنت متأكد من حذف المجموعة؟ هذا الإجراء لا يمكن التراجع عنه.')) {
+                return;
+            }
+            
+            try {
+                // حذف المجموعة
+                await database.ref('groups/' + currentChat).remove();
+                
+                // حذف رسائل المجموعة
+                await database.ref('groupMessages/' + currentChat).remove();
+                
+                showToast('تم حذف المجموعة', 'success');
+                closeGroupSettingsModal();
+                
+                // إعادة تعيين الدردشة
+                resetChat();
+                
+            } catch (error) {
+                console.error('خطأ في حذف المجموعة:', error);
+                showToast('حدث خطأ في حذف المجموعة', 'error');
+            }
+        };
+
+        // مغادرة المجموعة
+        window.leaveGroup = async () => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            if (!confirm('هل أنت متأكد من مغادرة المجموعة؟')) {
+                return;
+            }
+            
+            try {
+                const group = allGroups[currentChat];
+                
+                // إزالة المستخدم من الأعضاء
+                await database.ref('groups/' + currentChat + '/members/' + currentUser.id).remove();
+                
+                // إزالة المستخدم من الأدمن إذا كان أدمن
+                if (group.admins && group.admins[currentUser.id]) {
+                    await database.ref('groups/' + currentChat + '/admins/' + currentUser.id).remove();
+                }
+                
+                // تحديث عدد الأعضاء
+                const newMemberCount = (group.memberCount || 1) - 1;
+                await database.ref('groups/' + currentChat).update({
+                    memberCount: newMemberCount
+                });
+                
+                // إزالة المجموعة من قائمة المستخدم
+                await database.ref('users/' + currentUser.id + '/groups/' + currentChat).remove();
+                
+                showToast('لقد غادرت المجموعة', 'success');
+                closeGroupSettingsModal();
+                
+                // إعادة تعيين الدردشة
+                resetChat();
+                
+            } catch (error) {
+                console.error('خطأ في مغادرة المجموعة:', error);
+                showToast('حدث خطأ في مغادرة المجموعة', 'error');
+            }
+        };
+
+        // عرض أعضاء المجموعة
+        window.showGroupMembers = async () => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            const group = allGroups[currentChat];
+            if (!group) return;
+            
+            const isAdmin = group.admins && group.admins[currentUser.id];
+            const isCreator = group.creator === currentUser.id;
+            
+            document.getElementById('groupMembersContent').innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h4>${group.name}</h4>
+                    <p style="color: var(--gray);">${group.memberCount || 0} أعضاء</p>
+                </div>
+            `;
+            
+            let membersHtml = '';
+            
+            if (group.members) {
+                const membersArray = Object.entries(group.members)
+                    .sort(([id, data]) => {
+                        if (id === group.creator) return -1;
+                        if (group.admins && group.admins[id]) return 0;
+                        return 1;
+                    });
+                
+                for (const [memberId, memberData] of membersArray) {
+                    const user = allUsers[memberId];
+                    if (!user) continue;
+                    
+                    const isCurrentUser = memberId === currentUser.id;
+                    const isMemberAdmin = group.admins && group.admins[memberId];
+                    const isMemberCreator = group.creator === memberId;
+                    
+                    let roleBadge = '';
+                    if (isMemberCreator) {
+                        roleBadge = '<span class="member-role creator">منشئ</span>';
+                    } else if (isMemberAdmin) {
+                        roleBadge = '<span class="member-role admin">أدمن</span>';
+                    } else {
+                        roleBadge = '<span class="member-role">عضو</span>';
+                    }
+                    
+                    membersHtml += `
+                        <div class="member-item">
+                            <div class="member-info">
+                                <div style="width: 40px; height: 40px; background: ${user.avatarColor || getRandomColor()}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                    ${user.displayName.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">${user.displayName} ${isCurrentUser ? '(أنت)' : ''}</div>
+                                    <div style="font-size: 13px; color: var(--gray);">@${user.username}</div>
+                                </div>
+                            </div>
+                            <div>
+                                ${roleBadge}
+                                ${(isAdmin || isCreator) && !isCurrentUser ? `
+                                    <div class="member-actions">
+                                        ${isCreator && !isMemberCreator ? `
+                                            <button class="btn btn-sm ${isMemberAdmin ? 'btn-warning' : 'btn-success'}" onclick="${isMemberAdmin ? 'removeAdmin(\'' + memberId + '\')' : 'makeAdmin(\'' + memberId + '\')'}">
+                                                ${isMemberAdmin ? 'إزالة أدمن' : 'تعيين أدمن'}
+                                            </button>
+                                        ` : ''}
+                                        ${!isMemberCreator ? `
+                                            <button class="btn btn-danger btn-sm" onclick="removeMember('${memberId}')">
+                                                إزالة
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('groupMembersContent').innerHTML += membersHtml;
+            
+            // عرض زر الدعوة فقط للأدمن أو المنشئ
+            if (isAdmin || isCreator) {
+                document.getElementById('groupMembersFooter').style.display = 'flex';
+            } else {
+                document.getElementById('groupMembersFooter').style.display = 'none';
+            }
+            
+            document.getElementById('groupMembersModal').classList.add('active');
+        };
+
+        // إغلاق نافذة أعضاء المجموعة
+        window.closeGroupMembersModal = () => {
+            document.getElementById('groupMembersModal').classList.remove('active');
+        };
+
+        // تعيين أدمن
+        window.makeAdmin = async (memberId) => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            try {
+                await database.ref('groups/' + currentChat + '/admins/' + memberId).set(true);
+                showToast('تم تعيين المستخدم كأدمن', 'success');
+                showGroupMembers(); // تحديث العرض
+            } catch (error) {
+                console.error('خطأ في تعيين الأدمن:', error);
+                showToast('حدث خطأ في تعيين الأدمن', 'error');
+            }
+        };
+
+        // إزالة أدمن
+        window.removeAdmin = async (memberId) => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            try {
+                await database.ref('groups/' + currentChat + '/admins/' + memberId).remove();
+                showToast('تم إزالة صلاحية الأدمن', 'success');
+                showGroupMembers(); // تحديث العرض
+            } catch (error) {
+                console.error('خطأ في إزالة الأدمن:', error);
+                showToast('حدث خطأ في إزالة الأدمن', 'error');
+            }
+        };
+
+        // إزالة عضو
+        window.removeMember = async (memberId) => {
+            if (!currentChat || currentChatType !== 'group') return;
+            
+            if (!confirm('هل أنت متأكد من إزالة هذا العضو من المجموعة؟')) {
+                return;
+            }
+            
+            try {
+                const group = allGroups[currentChat];
+                
+                // إزالة العضو
+                await database.ref('groups/' + currentChat + '/members/' + memberId).remove();
+                
+                // إزالة من الأدمن إذا كان أدمن
+                if (group.admins && group.admins[memberId]) {
+                    await database.ref('groups/' + currentChat + '/admins/' + memberId).remove();
+                }
+                
+                // تحديث عدد الأعضاء
+                const newMemberCount = (group.memberCount || 1) - 1;
+                await database.ref('groups/' + currentChat).update({
+                    memberCount: newMemberCount
+                });
+                
+                // إزالة المجموعة من قائمة المستخدم
+                await database.ref('users/' + memberId + '/groups/' + currentChat).remove();
+                
+                showToast('تم إزالة العضو من المجموعة', 'success');
+                showGroupMembers(); // تحديث العرض
+                
+            } catch (error) {
+                console.error('خطأ في إزالة العضو:', error);
+                showToast('حدث خطأ في إزالة العضو', 'error');
+            }
+        };
+
+        // دعوة أعضاء جدد
+        window.inviteToGroup = () => {
+            closeGroupMembersModal();
+            setTimeout(() => {
+                showNewGroupModal();
+                // تعبئة الأعضاء الحاليين
+                selectedUsersForGroup = [];
+                const group = allGroups[currentChat];
+                if (group && group.members) {
+                    Object.keys(group.members).forEach(memberId => {
+                        if (memberId !== currentUser.id && allUsers[memberId]) {
+                            selectedUsersForGroup.push(allUsers[memberId]);
+                        }
+                    });
+                }
+                // الانتقال إلى تبويب الأعضاء
+                showGroupTab('members');
+                displayAllUsersForGroup();
+            }, 300);
+        };
+
         // ========== دوال أخرى ==========
 
         // تحديث المحادثة
         window.refreshChat = () => {
-            if (currentChat) {
-                loadMessages(currentChat);
+            if (currentChat && currentChatType) {
+                loadMessages(currentChat, currentChatType);
                 showToast('تم تحديث المحادثة', 'info');
             }
         };
+
+        // إعادة تعيين الدردشة
+        function resetChat() {
+            currentChat = null;
+            currentChatType = null;
+            
+            document.getElementById('chatName').textContent = 'اختر محادثة';
+            document.getElementById('chatAvatar').textContent = '?';
+            document.getElementById('chatAvatar').style.background = getRandomColor();
+            document.getElementById('chatStatus').textContent = 'اضغط على محادثة لبدء المراسلة';
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <h3>مرحباً في NexusChat</h3>
+                    <p>اختر محادثة من القائمة الجانبية أو ابدأ محادثة جديدة للبدء في المراسلة</p>
+                    <button onclick="showNewChatModal()" class="btn" style="width: auto; padding: 14px 28px; margin-top: 16px;">
+                        <i class="fas fa-plus"></i> بدء محادثة جديدة
+                    </button>
+                    <button onclick="showNewGroupModal()" class="btn btn-success" style="width: auto; padding: 14px 28px; margin-top: 12px;">
+                        <i class="fas fa-users"></i> إنشاء مجموعة جديدة
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('messageInput').placeholder = 'اختر محادثة أولا...';
+            document.getElementById('groupActions').style.display = 'none';
+        }
 
         // تسجيل الخروج
         window.logout = async () => {
@@ -1706,9 +3242,13 @@
             
             currentUser = null;
             currentChat = null;
+            currentChatType = null;
             allUsers = {};
             allConversations = {};
-            selectedUserForChat = null;
+            allGroups = {};
+            selectedUsersForChat = [];
+            selectedUsersForGroup = [];
+            emojiPickerVisible = false;
             
             document.getElementById('authContainer').style.display = 'block';
             document.getElementById('chatContainer').style.display = 'none';
@@ -1721,10 +3261,53 @@
             showToast('تم تسجيل الخروج', 'success');
         };
 
-        // تبديل القائمة الجانبية (للموبايل)
-        window.toggleSidebar = () => {
-            const sidebar = document.getElementById('sidebar');
+        // تبديل القائمة الجانبية
+        window.toggleSidebar = (sidebarId) => {
+            const sidebar = document.getElementById(sidebarId);
             sidebar.classList.toggle('active');
+        };
+
+        // عرض الملف الشخصي
+        window.showUserProfile = () => {
+            if (!currentUser) return;
+            
+            const profileHtml = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>الملف الشخصي</h3>
+                        <button class="modal-close" onclick="document.querySelector('.modal-overlay.active')?.classList.remove('active')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="text-align: center; padding: 20px;">
+                            <div class="user-avatar" style="width: 100px; height: 100px; font-size: 40px; margin: 0 auto 20px;">
+                                ${currentUser.displayName.charAt(0).toUpperCase()}
+                            </div>
+                            <h3>${currentUser.displayName}</h3>
+                            <p style="color: var(--gray); margin-bottom: 20px;">@${currentUser.username}</p>
+                            <div style="background: var(--light); padding: 20px; border-radius: var(--border-radius); text-align: right;">
+                                <p><strong>رقم العضو:</strong> ${currentUser.id.substring(0, 8)}...</p>
+                                <p><strong>تاريخ الانضمام:</strong> ${new Date(currentUser.createdAt).toLocaleDateString('ar-EG')}</p>
+                                <p><strong>الحالة:</strong> <span style="color: var(--success);">${currentUser.status}</span></p>
+                                ${currentUser.isAdmin ? '<p><strong>الصلاحية:</strong> <span style="color: var(--warning);">أدمن</span></p>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay active';
+            overlay.innerHTML = profileHtml;
+            document.body.appendChild(overlay);
+            
+            // إغلاق النافذة عند النقر خارجها
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                }
+            });
         };
 
         // التحقق من المستخدم المسجل مسبقاً
@@ -1774,29 +3357,84 @@
                 });
             }
             
-            // إغلاق القائمة الجانبية عند النقر خارجها (للموبايل)
+            // إغلاق القوائم الجانبية عند النقر خارجها (للموبايل)
             document.addEventListener('click', (e) => {
-                const sidebar = document.getElementById('sidebar');
+                const chatSidebar = document.getElementById('chatSidebar');
+                const groupsSidebar = document.getElementById('groupsSidebar');
                 const menuBtn = document.querySelector('.mobile-menu-btn');
+                const groupsBtn = document.querySelector('.mobile-groups-btn');
                 
-                if (window.innerWidth <= 768 && 
-                    sidebar.classList.contains('active') &&
-                    !sidebar.contains(e.target) &&
-                    e.target !== menuBtn &&
-                    !menuBtn.contains(e.target)) {
-                    sidebar.classList.remove('active');
+                if (window.innerWidth <= 768) {
+                    if (chatSidebar.classList.contains('active') &&
+                        !chatSidebar.contains(e.target) &&
+                        e.target !== menuBtn &&
+                        !menuBtn.contains(e.target)) {
+                        chatSidebar.classList.remove('active');
+                    }
+                    
+                    if (groupsSidebar.classList.contains('active') &&
+                        !groupsSidebar.contains(e.target) &&
+                        e.target !== groupsBtn &&
+                        !groupsBtn.contains(e.target)) {
+                        groupsSidebar.classList.remove('active');
+                    }
+                }
+                
+                if (window.innerWidth <= 1024 && window.innerWidth > 768) {
+                    if (groupsSidebar.classList.contains('active') &&
+                        !groupsSidebar.contains(e.target) &&
+                        e.target !== groupsBtn &&
+                        !groupsBtn.contains(e.target)) {
+                        groupsSidebar.classList.remove('active');
+                    }
                 }
             });
             
-            // إغلاق النافذة المنبثقة بالضغط على ESC
+            // إغلاق النوافذ المنبثقة بالضغط على ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     closeNewChatModal();
+                    closeNewGroupModal();
+                    closeGroupSettingsModal();
+                    closeGroupMembersModal();
+                    toggleEmojiPicker(true);
+                    
+                    // إغلاق أي نافذة منبثقة أخرى
+                    document.querySelectorAll('.modal-overlay.active').forEach(overlay => {
+                        if (!overlay.id) {
+                            overlay.remove();
+                        }
+                    });
                 }
             });
             
             // التحقق من المستخدم المسجل
             checkLoggedInUser();
+            
+            // تحسين التصميم للهاتف والحاسوب
+            function adjustLayout() {
+                const isMobile = window.innerWidth <= 768;
+                const isTablet = window.innerWidth <= 1024;
+                const container = document.querySelector('.container');
+                
+                if (isMobile) {
+                    container.style.height = '100vh';
+                    container.style.padding = '0';
+                    document.querySelector('.chat-container').style.borderRadius = '0';
+                } else if (isTablet) {
+                    container.style.height = '95vh';
+                    container.style.padding = '20px';
+                    document.querySelector('.chat-container').style.borderRadius = '20px';
+                } else {
+                    container.style.height = '90vh';
+                    container.style.padding = '20px';
+                    document.querySelector('.chat-container').style.borderRadius = '20px';
+                }
+            }
+            
+            // ضبط التخطيط عند تغيير حجم النافذة
+            window.addEventListener('resize', adjustLayout);
+            adjustLayout();
         });
     </script>
 </body>
